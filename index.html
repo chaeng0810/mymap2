@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>추구미 스카 찾기 | 프리미엄 스터디카페 매칭</title>
+    <title>추구미 스카 찾기 | 실시간 내 주변 스터디카페 매칭</title>
+    
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
+    
+    <!-- FontAwesome 아이콘 라이브러리 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <!-- Google Fonts (Plus Jakarta Sans & Noto Sans KR) -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
@@ -45,9 +48,10 @@
             background-color: #0f172a;
         }
 
-        /* 고급스러운 세로 스크롤바 디자인 */
+        /* 고급 세로 스크롤바 디자인 */
         ::-webkit-scrollbar {
-            width: 5px;
+            width: 6px;
+            height: 6px;
         }
         ::-webkit-scrollbar-track {
             background: transparent;
@@ -60,7 +64,7 @@
             background: rgba(148, 163, 184, 0.45);
         }
 
-        /* 커스텀 라인지 스타일 및 슬라이더 액센트 트랙 */
+        /* 커스텀 슬라이더 스타일 */
         input[type=range] {
             -webkit-appearance: none;
             background: transparent;
@@ -91,9 +95,9 @@
             box-shadow: 0 6px 15px rgba(79, 70, 229, 0.5), 0 0 0 4px #4f46e5;
         }
 
-        /* Glassmorphism 메인 서체 및 레이어 디자인 */
+        /* Glassmorphism 패널 및 카드 */
         .glass-panel {
-            background: rgba(255, 255, 255, 0.85);
+            background: rgba(255, 255, 255, 0.88);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.6);
@@ -106,7 +110,7 @@
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* 마커 클릭 인포윈도우 커스텀 스타일 */
+        /* 커스텀 인포윈도우 */
         .custom-infowindow {
             padding: 12px 16px;
             background: #0f172a;
@@ -116,65 +120,64 @@
             border: 1px solid rgba(255,255,255,0.15);
             font-size: 13px;
         }
-
-        /* 애니메이션 효과 */
-        @keyframes pulse-subtle {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.85; transform: scale(1.03); }
-        }
-        .animate-pulse-subtle {
-            animation: pulse-subtle 3s infinite ease-in-out;
-        }
     </style>
 
-    <!-- 카카오맵 JavaScript SDK 로드 (발급된 키 적용) -->
+    <!-- 카카오맵 JavaScript SDK (키 적용 및 services 라이브러리 포함) -->
     <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=f6b42b58e0dbcb7037094e695aef24ae&libraries=services"></script>
 </head>
 <body class="h-full w-full overflow-hidden antialiased text-slate-800">
 
-    <!-- 메인 컨테이너: 2분할 레이아웃 -->
+    <!-- 메인 레이아웃 (좌우 2분할) -->
     <div class="h-full w-full flex flex-col md:flex-row relative overflow-hidden bg-slate-900">
 
-        <!-- [좌측 패널]: 필터 컨트롤 및 추천 결과 리스트 -->
+        <!-- [좌측 패널]: 검색/가중치/결과 리스트 -->
         <aside class="w-full md:w-[480px] lg:w-[520px] h-1/2 md:h-full flex flex-col z-20 glass-panel shadow-2xl relative">
             
-            <!-- 헤더 타이틀 영역 -->
-            <header class="p-5 md:p-6 bg-slate-900/90 text-white border-b border-slate-800 shrink-0 flex items-center justify-between">
+            <!-- 상단 헤더 영역 -->
+            <header class="p-4 md:p-5 bg-slate-900/95 text-white border-b border-slate-800 shrink-0 flex items-center justify-between">
                 <div>
                     <div class="flex items-center gap-2 mb-1">
-                        <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 text-xs">
+                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 text-xs">
                             <i class="fa-solid fa-compass"></i>
                         </span>
-                        <span class="text-xs font-bold tracking-wider text-indigo-400 uppercase">AI Matching Engine</span>
+                        <span class="text-[11px] font-bold tracking-wider text-indigo-400 uppercase">Real-Time Kakao API</span>
                     </div>
-                    <h1 class="text-xl md:text-2xl font-black tracking-tight flex items-center gap-2 bg-gradient-to-r from-white via-slate-100 to-indigo-200 bg-clip-text text-transparent">
+                    <h1 class="text-lg md:text-xl font-black tracking-tight bg-gradient-to-r from-white via-slate-100 to-indigo-200 bg-clip-text text-transparent">
                         추구미 스카 찾기
                     </h1>
                 </div>
                 
-                <!-- 내 위치 재설정 버튼 -->
-                <button id="resetLocationBtn" class="group relative px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200 transition-all flex items-center gap-2 shadow-sm active:scale-95">
-                    <i class="fa-solid fa-crosshairs text-indigo-400 group-hover:rotate-45 transition-transform duration-300"></i>
-                    <span>내 위치</span>
-                </button>
+                <!-- 우측 상단 버튼 그룹 -->
+                <div class="flex items-center gap-2">
+                    <!-- 코드 복사하기 버튼 -->
+                    <button id="copyCodeBtn" class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-glow active:scale-95">
+                        <i class="fa-regular fa-copy"></i>
+                        <span>전체 코드 복사</span>
+                    </button>
+
+                    <!-- 내 위치 재설정 버튼 -->
+                    <button id="resetLocationBtn" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200 transition-all flex items-center justify-center active:scale-95" title="내 위치 재탐색">
+                        <i class="fa-solid fa-crosshairs text-indigo-400"></i>
+                    </button>
+                </div>
             </header>
 
-            <!-- 가중치 설정 패널 (스와이프 슬라이더) -->
-            <section class="p-5 bg-white/70 border-b border-slate-200/80 shrink-0 backdrop-blur-md">
-                <div class="flex items-center justify-between mb-4">
+            <!-- 가중치 설정 컨트롤러 (4가지 스와이프 슬라이더) -->
+            <section class="p-4 bg-white/70 border-b border-slate-200/80 shrink-0 backdrop-blur-md">
+                <div class="flex items-center justify-between mb-3">
                     <h2 class="text-xs font-extrabold uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
                         <i class="fa-solid fa-sliders text-indigo-600"></i>
                         <span>취향 가중치 슬라이더</span>
                     </h2>
-                    <span class="text-[11px] font-medium text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
-                        실시간 적합도 산출
+                    <span id="locationBadge" class="text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded-full">
+                        내 주변 실시간
                     </span>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <!-- 1. 거리 가중치 -->
-                    <div class="bg-white/80 p-3 rounded-2xl border border-slate-200/60 shadow-sm hover:border-indigo-200 transition-colors">
-                        <div class="flex justify-between items-center text-xs font-semibold mb-2">
+                    <div class="bg-white/80 p-2.5 rounded-2xl border border-slate-200/60 shadow-sm hover:border-indigo-200 transition-colors">
+                        <div class="flex justify-between items-center text-xs font-semibold mb-1.5">
                             <span class="text-slate-700 flex items-center gap-1.5">
                                 <i class="fa-solid fa-shoe-prints text-sky-500"></i> 가까운 거리
                             </span>
@@ -184,8 +187,8 @@
                     </div>
 
                     <!-- 2. 평점 가중치 -->
-                    <div class="bg-white/80 p-3 rounded-2xl border border-slate-200/60 shadow-sm hover:border-indigo-200 transition-colors">
-                        <div class="flex justify-between items-center text-xs font-semibold mb-2">
+                    <div class="bg-white/80 p-2.5 rounded-2xl border border-slate-200/60 shadow-sm hover:border-indigo-200 transition-colors">
+                        <div class="flex justify-between items-center text-xs font-semibold mb-1.5">
                             <span class="text-slate-700 flex items-center gap-1.5">
                                 <i class="fa-solid fa-star text-amber-500"></i> 높은 평점
                             </span>
@@ -195,8 +198,8 @@
                     </div>
 
                     <!-- 3. 가격 가중치 -->
-                    <div class="bg-white/80 p-3 rounded-2xl border border-slate-200/60 shadow-sm hover:border-indigo-200 transition-colors">
-                        <div class="flex justify-between items-center text-xs font-semibold mb-2">
+                    <div class="bg-white/80 p-2.5 rounded-2xl border border-slate-200/60 shadow-sm hover:border-indigo-200 transition-colors">
+                        <div class="flex justify-between items-center text-xs font-semibold mb-1.5">
                             <span class="text-slate-700 flex items-center gap-1.5">
                                 <i class="fa-solid fa-coins text-emerald-500"></i> 착한 가격
                             </span>
@@ -206,8 +209,8 @@
                     </div>
 
                     <!-- 4. 주변 음식점 가중치 -->
-                    <div class="bg-white/80 p-3 rounded-2xl border border-slate-200/60 shadow-sm hover:border-indigo-200 transition-colors">
-                        <div class="flex justify-between items-center text-xs font-semibold mb-2">
+                    <div class="bg-white/80 p-2.5 rounded-2xl border border-slate-200/60 shadow-sm hover:border-indigo-200 transition-colors">
+                        <div class="flex justify-between items-center text-xs font-semibold mb-1.5">
                             <span class="text-slate-700 flex items-center gap-1.5">
                                 <i class="fa-solid fa-utensils text-rose-500"></i> 주변 맛집/카페
                             </span>
@@ -218,128 +221,102 @@
                 </div>
             </section>
 
-            <!-- 추천 카드 리스트 컨테이너 -->
+            <!-- 결과 리스트 영역 -->
             <div class="flex-1 flex flex-col min-h-0 bg-slate-50/50">
-                <!-- 결과 상태 바 -->
-                <div class="px-5 py-3 bg-white/50 border-b border-slate-200/60 flex items-center justify-between shrink-0">
+                <div class="px-5 py-2.5 bg-white/50 border-b border-slate-200/60 flex items-center justify-between shrink-0">
                     <span class="text-xs font-bold text-slate-700">
-                        추천 결과 <span id="resultCount" class="text-indigo-600 font-extrabold ml-1">0</span>개
+                        주변 탐색 스카 <span id="resultCount" class="text-indigo-600 font-extrabold ml-1">0</span>개
                     </span>
                     <span class="text-[11px] text-slate-400 font-medium">
-                        * 적합도 퍼센티지 기준 정렬됨
+                        * 내 취향 적합도 순 정렬
                     </span>
                 </div>
 
-                <!-- 카페 카드 동적 삽입 영역 -->
-                <div id="cafeList" class="flex-1 overflow-y-auto p-4 space-y-3.5">
-                    <!-- JS로 동적 생성됩니다. -->
+                <!-- 카페 카드 동적 생성 컨테이너 -->
+                <div id="cafeList" class="flex-1 overflow-y-auto p-4 space-y-3">
+                    <!-- 동적으로 삽입됩니다 -->
                 </div>
             </div>
         </aside>
 
         <!-- [우측 패널]: 카카오 지도 영역 -->
         <main class="w-full md:w-auto md:flex-1 h-1/2 md:h-full relative bg-slate-950">
-            <!-- Kakao Map Canvas -->
+            <!-- 지도 캔버스 -->
             <div id="map" class="w-full h-full"></div>
 
-            <!-- 지도 위 우측 상단 플로팅 정보 뱃지 -->
+            <!-- 우측 상단 지점 뱃지 -->
             <div class="absolute top-5 right-5 z-10 pointer-events-none hidden sm:block">
-                <div class="glass-panel px-4 py-2.5 rounded-2xl shadow-lg border border-white/60 flex items-center gap-3">
+                <div class="glass-panel px-4 py-2 rounded-2xl shadow-lg border border-white/60 flex items-center gap-2.5">
                     <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span class="text-xs font-bold text-slate-700">지도 레벨 7 (반경 기준)</span>
+                    <span class="text-xs font-bold text-slate-700">카카오 지도 Level 7 (5km 범위)</span>
                 </div>
             </div>
 
-            <!-- 토스트 메시지 알림 UI -->
-            <div id="toastMessage" class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-slate-900/90 backdrop-blur-md text-white text-xs font-medium px-5 py-2.5 rounded-full shadow-2xl border border-slate-700/80 pointer-events-none transition-all duration-300 opacity-0 transform translate-y-2 z-30 flex items-center gap-2.5">
+            <!-- 알림 토스트 UI -->
+            <div id="toastMessage" class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-slate-900/90 backdrop-blur-md text-white text-xs font-medium px-5 py-2.5 rounded-full shadow-2xl border border-slate-700/80 pointer-events-none transition-all duration-300 opacity-0 transform translate-y-2 z-30 flex items-center gap-2">
                 <i class="fa-solid fa-circle-check text-indigo-400"></i>
                 <span id="toastText">알림 메시지</span>
             </div>
         </main>
     </div>
 
+    <!-- 코드 보기 & 복사 모달 팝업 -->
+    <div id="codeModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-4xl h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+            <!-- 모달 헤더 -->
+            <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900/90 shrink-0">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-code"></i>
+                    </span>
+                    <div>
+                        <h3 class="text-white font-bold text-base">단일 파일 소스코드 (index.html)</h3>
+                        <p class="text-xs text-slate-400">전체 HTML, CSS, JavaScript 스크립트가 포함되어 있습니다.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button id="modalCopyBtn" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-all flex items-center gap-2 active:scale-95 shadow-glow">
+                        <i class="fa-regular fa-copy"></i>
+                        <span>복사하기</span>
+                    </button>
+                    <button id="closeModalBtn" class="w-8 h-8 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-sm transition-colors">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 코드 보기 박스 -->
+            <div class="flex-1 p-4 overflow-hidden bg-slate-950">
+                <textarea id="codeTextarea" class="w-full h-full bg-transparent text-slate-300 font-mono text-xs p-3 focus:outline-none resize-none leading-relaxed" readonly></textarea>
+            </div>
+        </div>
+    </div>
+
     <script>
         /**
-         * 추구미 스카 찾기 메인 자바스크립트 로직
-         * - Kakao Map API 안전 제어
-         * - Geolocation 기반 현재 위치 산출
-         * - 4가지 조건 가중치 알고리즘 구현
+         * 전역 상태 제어 변수
          */
+        let mapInstance = null;         // 카카오 Map 객체
+        let placesService = null;       // 카카오 장소 검색 서비스 객체
+        let userMarkerOverlay = null;   // 내 위치 마커
+        let activeInfoWindow = null;    // 열린 인포윈도우
+        let mapMarkers = [];            // 지도에 생성된 스카 마커 배열
+        let realCafePlaces = [];        // 카카오 API로 검색된 실시간 스카 데이터
 
-        // 전역 상태 변수
-        let mapInstance = null;         // Map 객체
-        let userMarkerOverlay = null;   // 사용자 현재 위치 마커
-        let activeInfoWindow = null;    // 현재 열린 인포윈도우
-        let mapMarkers = [];            // 생성된 마커 객체 배열
-
-        // 위치 기본값 (위치 권한 거부 시 서울시청)
+        // 기본 위치 (위치 권한 미허용 시 기본 좌표: 강남역)
         let currentUserPos = {
-            lat: 37.5665,
-            lng: 126.9780
+            lat: 37.4979,
+            lng: 127.0276
         };
 
-        // 스터디카페 가상 고품질 샘플 데이터셋
-        const mockCafeData = [
-            {
-                id: 1,
-                name: "시그니처 몰입 스터디카페",
-                lat: 37.5672,
-                lng: 126.9792,
-                address: "서울 중구 태평로1가 12-3 3층",
-                pricePerHour: 1600,
-                rating: 4.9,
-                foodScore: 9.5,
-                image: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=300&q=80",
-                tags: ["24h 전용", "무소음키보드존", "스타벅스원두"]
-            },
-            {
-                id: 2,
-                name: "포커스 라운지 스카",
-                lat: 37.5651,
-                lng: 126.9755,
-                address: "서울 중구 서소문로 45 2층",
-                pricePerHour: 1200,
-                rating: 4.4,
-                foodScore: 6.5,
-                image: "https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?auto=format&fit=crop&w=300&q=80",
-                tags: ["가성비최강", "넓은독서대", "산소발생기"]
-            },
-            {
-                id: 3,
-                name: "더 스투디움 프리미엄",
-                lat: 37.5690,
-                lng: 126.9768,
-                address: "서울 종로구 종로1가 22 4층",
-                pricePerHour: 2200,
-                rating: 4.95,
-                foodScore: 9.8,
-                image: "https://images.unsplash.com/photo-1517502884422-41eaead166d4?auto=format&fit=crop&w=300&q=80",
-                tags: ["초고속Wi-Fi6", "무료프린트", "맛집골목"]
-            },
-            {
-                id: 4,
-                name: "그린에코 스터디랩",
-                lat: 37.5642,
-                lng: 126.9810,
-                address: "서울 중구 명동길 15 3층",
-                pricePerHour: 1100,
-                rating: 4.2,
-                foodScore: 8.2,
-                image: "https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=300&q=80",
-                tags: ["조용한환경", "자유석", "시티뷰"]
-            },
-            {
-                id: 5,
-                name: "어반워크 스터디 아카데미",
-                lat: 37.5685,
-                lng: 126.9825,
-                address: "서울 종로구 삼일대로 10 5층",
-                pricePerHour: 1800,
-                rating: 4.7,
-                foodScore: 7.5,
-                image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=300&q=80",
-                tags: ["노트북존", "카페테리아", "깨끗한위생"]
-            }
+        // 이미지 플레이스홀더 목록
+        const sampleImages = [
+            "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=300&q=80",
+            "https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?auto=format&fit=crop&w=300&q=80",
+            "https://images.unsplash.com/photo-1517502884422-41eaead166d4?auto=format&fit=crop&w=300&q=80",
+            "https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=300&q=80",
+            "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=300&q=80"
         ];
 
         // 페이지 로드 시 Kakao Map 안전 초기화
@@ -348,6 +325,7 @@
                 kakao.maps.load(function() {
                     initializeMap();
                     setupEventListeners();
+                    setupCodeCopyModal();
                 });
             } else {
                 showToast("카카오 지도 SDK 로드에 실패했습니다.");
@@ -355,7 +333,7 @@
         };
 
         /**
-         * 지도 초기화
+         * 카카오 지도 및 장소 서비스 초기화
          */
         function initializeMap() {
             const container = document.getElementById('map');
@@ -365,17 +343,18 @@
             };
 
             mapInstance = new kakao.maps.Map(container, options);
+            placesService = new kakao.maps.services.Places();
 
             // 줌 컨트롤 추가
             const zoomControl = new kakao.maps.ZoomControl();
             mapInstance.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
 
-            // 현재 위치 확인
+            // 현재 위치 확인 후 주변 실시간 검색 실행
             fetchUserCurrentLocation();
         }
 
         /**
-         * 현재 위치 탐색 (Geolocation)
+         * 사용자의 현재 지리적 위치 탐색 (Geolocation)
          */
         function fetchUserCurrentLocation() {
             if (navigator.geolocation) {
@@ -392,25 +371,28 @@
                         mapInstance.setLevel(7);
 
                         renderUserLocationMarker(latLng);
-                        showToast("현재 위치가 중심으로 설정되었습니다.");
-                        updateRecommendations();
+                        showToast("현재 위치를 중심으로 주변 스카를 탐색합니다.");
+                        
+                        // 카카오 API로 실시간 스터디카페 검색
+                        searchNearbyStudyCafes(latLng);
                     },
                     function(error) {
-                        showToast("위치 권한을 불러올 수 없어 기본 위치로 설정합니다.");
+                        showToast("위치 권한 미허용으로 기본 위치(강남)에서 탐색합니다.");
                         const latLng = new kakao.maps.LatLng(currentUserPos.lat, currentUserPos.lng);
                         renderUserLocationMarker(latLng);
-                        updateRecommendations();
+                        searchNearbyStudyCafes(latLng);
                     },
-                    { enableHighAccuracy: true, timeout: 6000 }
+                    { enableHighAccuracy: true, timeout: 7000 }
                 );
             } else {
-                showToast("이 브라우저는 위치 서비스를 지원하지 않습니다.");
-                updateRecommendations();
+                showToast("위치 서비스를 지원하지 않는 브라우저입니다.");
+                const latLng = new kakao.maps.LatLng(currentUserPos.lat, currentUserPos.lng);
+                searchNearbyStudyCafes(latLng);
             }
         }
 
         /**
-         * 내 위치 맞춤형 네온 마커 생성
+         * 내 위치 맞춤 마커 핀
          */
         function renderUserLocationMarker(latLng) {
             if (userMarkerOverlay) {
@@ -420,7 +402,7 @@
             const element = document.createElement('div');
             element.className = 'relative flex items-center justify-center';
             element.innerHTML = `
-                <span class="animate-ping absolute inline-flex h-9 w-9 rounded-full bg-indigo-500 opacity-75"></span>
+                <span class="animate-ping absolute inline-flex h-8 w-8 rounded-full bg-indigo-500 opacity-75"></span>
                 <span class="relative inline-flex rounded-full h-7 w-7 bg-indigo-600 border-2 border-white items-center justify-center text-white text-[11px] font-extrabold shadow-glow">
                     ME
                 </span>
@@ -437,7 +419,56 @@
         }
 
         /**
-         * 두 위경도 좌표 간 직선 거리(km) 수식
+         * 카카오 장소 검색 API를 사용해 현재 좌표 주변의 스터디카페 실시간 검색
+         */
+        function searchNearbyStudyCafes(centerLatLng) {
+            // 카카오 키워드 검색 옵션 (5km 반경 내 '스터디카페')
+            const searchOptions = {
+                location: centerLatLng,
+                radius: 5000,
+                sort: kakao.maps.services.SortBy.DISTANCE
+            };
+
+            placesService.keywordSearch('스터디카페', function(result, status) {
+                if (status === kakao.maps.services.Status.OK) {
+                    // 카카오 장소 데이터를 사용 가능한 포맷으로 정제
+                    realCafePlaces = result.map((place, idx) => {
+                        const distMeter = parseInt(place.distance) || Math.round(calculateDistanceKm(currentUserPos.lat, currentUserPos.lng, parseFloat(place.y), parseFloat(place.x)) * 1000);
+                        
+                        // 시뮬레이션용 세부 수치 부여 (실제 카카오 Places API 기본 정보 조합)
+                        const hash = place.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                        const ratingSim = (4.0 + (hash % 10) * 0.1).toFixed(1);
+                        const priceSim = 1200 + (hash % 8) * 100;
+                        const foodScoreSim = 6.0 + (hash % 4) * 1.0;
+
+                        return {
+                            id: place.id,
+                            name: place.place_name,
+                            lat: parseFloat(place.y),
+                            lng: parseFloat(place.x),
+                            address: place.road_address_name || place.address_name,
+                            distanceMeter: distMeter,
+                            distanceKm: (distMeter / 1000).toFixed(1),
+                            rating: parseFloat(ratingSim),
+                            pricePerHour: priceSim,
+                            foodScore: foodScoreSim,
+                            placeUrl: place.place_url,
+                            phone: place.phone || '전화번호 미등록',
+                            image: sampleImages[idx % sampleImages.length],
+                            tags: ["24시간", "콘센트완비", "쾌적한좌석"]
+                        };
+                    });
+
+                    updateRecommendations();
+                } else {
+                    showToast("주변 스터디카페 검색 결과가 없습니다.");
+                    renderCafeList([]);
+                }
+            }, searchOptions);
+        }
+
+        /**
+         * 위경도 두 지점 간 거리(km) 구하기
          */
         function calculateDistanceKm(lat1, lon1, lat2, lon2) {
             const R = 6371;
@@ -452,20 +483,19 @@
         }
 
         /**
-         * 가중치 슬라이더 상태 반영 및 매칭 알고리즘 수식
+         * 취향 가중치 계산 및 매칭 퍼센트 업데이트
          */
         function updateRecommendations() {
-            // 슬라이더 입력값 가져오기 (1~10)
+            if (!realCafePlaces || realCafePlaces.length === 0) return;
+
             const wDistance = parseFloat(document.getElementById('distanceWeight').value);
             const wRating = parseFloat(document.getElementById('ratingWeight').value);
             const wPrice = parseFloat(document.getElementById('priceWeight').value);
             const wFood = parseFloat(document.getElementById('foodWeight').value);
 
-            const calculatedCafes = mockCafeData.map(cafe => {
-                const distKm = calculateDistanceKm(currentUserPos.lat, currentUserPos.lng, cafe.lat, cafe.lng);
-                
-                // 각 항목별 점수 변환 (10점 만점 기준)
-                const distanceScore = Math.max(0, 10 - (distKm * 2.2));
+            const calculated = realCafePlaces.map(cafe => {
+                // 10점 만점 단위 스케일링
+                const distanceScore = Math.max(0, 10 - (parseFloat(cafe.distanceKm) * 2));
                 const ratingScore = (cafe.rating / 5) * 10;
                 const priceScore = Math.max(0, 10 - ((cafe.pricePerHour - 1000) / 120));
                 const foodScore = cafe.foodScore;
@@ -476,25 +506,23 @@
                                     (priceScore * wPrice) + 
                                     (foodScore * wFood);
 
-                const matchPercentage = Math.min(99, Math.max(60, Math.round((weightedSum / (totalWeight * 10)) * 100)));
+                const matchPercentage = Math.min(99, Math.max(62, Math.round((weightedSum / (totalWeight * 10)) * 100)));
 
                 return {
                     ...cafe,
-                    distanceKm: distKm.toFixed(1),
                     matchPercentage: matchPercentage
                 };
             });
 
-            // 매칭 점수 순 정렬
-            calculatedCafes.sort((a, b) => b.matchPercentage - a.matchPercentage);
+            // 매칭 점수 기준 내림차순 정렬
+            calculated.sort((a, b) => b.matchPercentage - a.matchPercentage);
 
-            // UI 및 지도 마커 동기화
-            renderCafeList(calculatedCafes);
-            renderMapMarkers(calculatedCafes);
+            renderCafeList(calculated);
+            renderMapMarkers(calculated);
         }
 
         /**
-         * 세련된 카드 목록 렌더링
+         * 추천 결과 카드 렌더링
          */
         function renderCafeList(cafes) {
             const listContainer = document.getElementById('cafeList');
@@ -502,62 +530,61 @@
 
             listContainer.innerHTML = '';
 
+            if (cafes.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center py-10 text-slate-400 text-xs">
+                        내 주변 5km 이내에 검색된 스터디카페가 없습니다.
+                    </div>
+                `;
+                return;
+            }
+
             cafes.forEach((cafe, index) => {
                 const isTopRank = index === 0;
 
                 const card = document.createElement('div');
-                card.className = `glass-card p-4 rounded-2xl cursor-pointer group shadow-sm hover:shadow-card-hover ${
+                card.className = `glass-card p-3.5 rounded-2xl cursor-pointer group shadow-sm hover:shadow-card-hover ${
                     isTopRank ? 'border-2 border-indigo-500/80 ring-4 ring-indigo-500/10' : 'hover:border-indigo-300'
                 }`;
 
                 card.innerHTML = `
-                    <div class="flex gap-3.5">
-                        <!-- 이미지 크롭 스퀘어 -->
-                        <div class="w-20 h-20 rounded-xl overflow-hidden relative shrink-0 bg-slate-200">
+                    <div class="flex gap-3">
+                        <div class="w-16 h-16 rounded-xl overflow-hidden relative shrink-0 bg-slate-200">
                             <img src="${cafe.image}" alt="${cafe.name}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                            ${isTopRank ? '<span class="absolute top-1 left-1 bg-indigo-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow">BEST</span>' : ''}
+                            ${isTopRank ? '<span class="absolute top-1 left-1 bg-indigo-600 text-white text-[8px] font-black px-1 py-0.2 rounded shadow">BEST</span>' : ''}
                         </div>
 
-                        <!-- 스카 정보 및 매칭률 -->
                         <div class="flex-1 min-w-0">
                             <div class="flex items-start justify-between gap-1">
-                                <h3 class="font-bold text-slate-900 text-sm truncate group-hover:text-indigo-600 transition-colors">
+                                <h3 class="font-bold text-slate-900 text-xs truncate group-hover:text-indigo-600 transition-colors">
                                     ${cafe.name}
                                 </h3>
-                                <!-- 매칭 퍼센트 뱃지 -->
-                                <span class="shrink-0 font-extrabold text-xs px-2 py-1 rounded-lg ${
+                                <span class="shrink-0 font-extrabold text-[11px] px-2 py-0.5 rounded-md ${
                                     isTopRank ? 'bg-indigo-600 text-white shadow-glow' : 'bg-indigo-50 text-indigo-600'
                                 }">
                                     ${cafe.matchPercentage}%
                                 </span>
                             </div>
 
-                            <p class="text-[11px] text-slate-500 mt-1 truncate">
+                            <p class="text-[11px] text-slate-500 mt-0.5 truncate">
                                 <i class="fa-solid fa-location-dot text-slate-400 mr-1"></i>${cafe.address}
                             </p>
 
-                            <!-- 핵심 지표 태그 -->
-                            <div class="flex items-center gap-2 mt-2.5 text-[11px] font-semibold text-slate-600">
-                                <span class="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded-md">
+                            <div class="flex items-center gap-1.5 mt-2 text-[10px] font-semibold text-slate-600">
+                                <span class="bg-slate-100 px-1.5 py-0.5 rounded">
                                     <i class="fa-solid fa-person-walking text-sky-500"></i> ${cafe.distanceKm}km
                                 </span>
-                                <span class="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded-md">
+                                <span class="bg-slate-100 px-1.5 py-0.5 rounded">
                                     <i class="fa-solid fa-star text-amber-500"></i> ${cafe.rating}
                                 </span>
-                                <span class="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded-md">
+                                <span class="bg-slate-100 px-1.5 py-0.5 rounded">
                                     ${cafe.pricePerHour.toLocaleString()}원/시간
                                 </span>
                             </div>
                         </div>
                     </div>
-
-                    <!-- 태그 리스트 -->
-                    <div class="flex flex-wrap gap-1 mt-3 pt-2.5 border-t border-slate-100">
-                        ${cafe.tags.map(t => `<span class="text-[10px] font-medium text-slate-500 bg-slate-100/80 px-2 py-0.5 rounded-full">#${t}</span>`).join('')}
-                    </div>
                 `;
 
-                // 카드 클릭 시 해당 지도 위치로 소프트 이동
                 card.addEventListener('click', () => {
                     focusCafeOnMap(cafe);
                 });
@@ -567,7 +594,7 @@
         }
 
         /**
-         * 지도 내 고화질 마커 및 클릭 인포윈도우 렌더링
+         * 지도 상에 스카 마커 표시
          */
         function renderMapMarkers(cafes) {
             mapMarkers.forEach(m => m.setMap(null));
@@ -582,7 +609,6 @@
                     title: cafe.name
                 });
 
-                // 커스텀 흑단색 인포윈도우 디자인
                 const iwContent = `
                     <div class="custom-infowindow">
                         <div class="font-bold text-sm text-white mb-1">${cafe.name}</div>
@@ -609,20 +635,20 @@
         }
 
         /**
-         * 선택한 카드로 지도를 이동시키는 함수
+         * 특정 스카 위치로 이동
          */
         function focusCafeOnMap(cafe) {
             const moveLatLng = new kakao.maps.LatLng(cafe.lat, cafe.lng);
             mapInstance.panTo(moveLatLng);
 
-            const cafeIndex = mockCafeData.findIndex(c => c.id === cafe.id);
+            const cafeIndex = realCafePlaces.findIndex(c => c.id === cafe.id);
             if (cafeIndex !== -1 && mapMarkers[cafeIndex]) {
                 kakao.maps.event.trigger(mapMarkers[cafeIndex], 'click');
             }
         }
 
         /**
-         * 이벤트 리스너 바인딩 및 슬라이더 트랙 동적 색상 채우기
+         * 슬라이더 트랙 트랜지션 및 리스너 등록
          */
         function setupEventListeners() {
             const sliderConfigs = [
@@ -636,7 +662,6 @@
                 const slider = document.getElementById(cfg.id);
                 const valDisplay = document.getElementById(cfg.valId);
 
-                // 트랙 컬러 업데이트 로직
                 const updateTrackColor = (elem) => {
                     const percentage = ((elem.value - elem.min) / (elem.max - elem.min)) * 100;
                     elem.style.background = `linear-gradient(to right, #6366f1 0%, #6366f1 ${percentage}%, #e2e8f0 ${percentage}%, #e2e8f0 100%)`;
@@ -651,14 +676,13 @@
                 });
             });
 
-            // 내 위치 버튼 이벤트
             document.getElementById('resetLocationBtn').addEventListener('click', () => {
                 fetchUserCurrentLocation();
             });
         }
 
         /**
-         * 하단 알림 토스트 UI 함수
+         * 토스트 메시지 함수
          */
         function showToast(message) {
             const toast = document.getElementById('toastMessage');
